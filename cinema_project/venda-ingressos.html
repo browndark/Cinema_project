@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Venda de Ingressos</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body id="page-venda">
+<header>
+  <h1>Venda de Ingressos</h1>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="cadastro-filmes.html">Cadastro de Filmes</a>
+    <a href="cadastro-salas.html">Cadastro de Salas</a>
+    <a href="cadastro-sessoes.html">Cadastro de Sessões</a>
+    <a href="sessoes.html">Sessões Disponíveis</a>
+    <a href="venda-ingressos.html">Venda de Ingressos</a>
+  </nav>
+</header>
+
+<main>
+  <form id="form-venda" class="card">
+    <label>Sessão<select id="vendaSessao"></select></label>
+    <label>Nome do Cliente<input type="text" id="cliente" required></label>
+    <label>CPF<input type="text" id="cpf" required></label>
+    <label>Assento<input type="text" id="assento" placeholder="A10" required></label>
+    <label>Tipo de Pagamento<select id="pagamento"><option>Cartão</option><option>Pix</option><option>Dinheiro</option></select></label>
+    <button type="submit">Confirmar Venda</button>
+  </form>
+
+  <section class="card">
+    <h3>Ingressos vendidos</h3>
+    <ul id="lista-ingressos"></ul>
+  </section>
+</main>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

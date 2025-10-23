@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cadastro de Filmes</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body id="page-filmes">
+<header>
+  <h1>Cadastro de Filmes</h1>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="cadastro-filmes.html">Cadastro de Filmes</a>
+    <a href="cadastro-salas.html">Cadastro de Salas</a>
+    <a href="cadastro-sessoes.html">Cadastro de Sessões</a>
+    <a href="sessoes.html">Sessões Disponíveis</a>
+    <a href="venda-ingressos.html">Venda de Ingressos</a>
+  </nav>
+</header>
+
+<main>
+  <form id="form-filme" class="card">
+    <label>Título<input type="text" id="titulo" required></label>
+    <label>Gênero<input type="text" id="genero"></label>
+    <label>Descrição<textarea id="descricao"></textarea></label>
+    <label>Classificação<select id="classificacao">
+      <option value="Livre">Livre</option>
+      <option value="10">10</option>
+      <option value="12">12</option>
+      <option value="14">14</option>
+      <option value="16">16</option>
+      <option value="18">18</option>
+    </select></label>
+    <label>Duração (min)<input type="number" id="duracao" min="1"></label>
+    <label>Data de estreia<input type="date" id="estreia"></label>
+    <button type="submit">Salvar Filme</button>
+  </form>
+
+  <section class="card">
+    <h3>Filmes cadastrados</h3>
+    <ul id="lista-filmes"></ul>
+  </section>
+</main>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

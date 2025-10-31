@@ -34,6 +34,13 @@
     </select></label>
     <label>Duração (min)<input type="number" id="duracao" min="1"></label>
     <label>Data de estreia<input type="date" id="estreia"></label>
+    <label>Imagem do Filme
+      <input type="file" id="imagem" accept="image/*">
+      <div id="preview-container" style="display:none;">
+        <img id="preview-img" style="max-width:200px;margin-top:10px;border-radius:8px;">
+        <button type="button" id="remove-img" style="width:auto;padding:5px 10px;margin-left:10px;background:#dc3545;">Remover</button>
+      </div>
+    </label>
     <button type="submit">Salvar Filme</button>
   </form>
 

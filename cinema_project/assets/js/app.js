@@ -14,12 +14,47 @@
   function filmesPage(){
     const form = $('#form-filme');
     const lista = $('#lista-filmes');
+    const inputImagem = $('#imagem');
+    const previewContainer = $('#preview-container');
+    const previewImg = $('#preview-img');
+    const removeBtn = $('#remove-img');
+    let imagemBase64 = null;
+
+    // Preview da imagem
+    inputImagem.addEventListener('change', function(e){
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+          imagemBase64 = e.target.result;
+          previewImg.src = imagemBase64;
+          previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Remover imagem
+    removeBtn.addEventListener('click', function(){
+      imagemBase64 = null;
+      inputImagem.value = '';
+      previewContainer.style.display = 'none';
+    });
 
     function render(){
       lista.innerHTML='';
       storage.get('filmes').forEach(f=>{
         const li = document.createElement('li');
-        li.innerHTML = `<div><strong>${f.titulo}</strong> <div class="small">${f.genero || ''} - ${f.classificacao || ''} - ${f.duracao || ''}min</div></div>
+        const imagemHtml = f.imagem ? `<img src="${f.imagem}" style="width:60px;height:90px;object-fit:cover;border-radius:4px;margin-right:12px;">` : '<div style="width:60px;height:90px;background:#f0f0f0;border-radius:4px;margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;">Sem imagem</div>';
+        
+        li.innerHTML = `<div style="display:flex;align-items:center;">
+          ${imagemHtml}
+          <div>
+            <strong>${f.titulo}</strong> 
+            <div class="small">${f.genero || ''} - ${f.classificacao || ''} - ${f.duracao || ''}min</div>
+            ${f.descricao ? `<div class="small" style="margin-top:4px;">${f.descricao.substring(0, 100)}${f.descricao.length > 100 ? '...' : ''}</div>` : ''}
+          </div>
+        </div>
         <div class="actions"><button data-id="${f.id}" class="del">Apagar</button></div>`;
         lista.appendChild(li);
       });
@@ -39,12 +74,15 @@
         descricao: $('#descricao').value,
         classificacao: $('#classificacao').value,
         duracao: $('#duracao').value,
-        estreia: $('#estreia').value
+        estreia: $('#estreia').value,
+        imagem: imagemBase64
       };
       const arr = storage.get('filmes');
       arr.push(f);
       storage.set('filmes', arr);
       form.reset();
+      imagemBase64 = null;
+      previewContainer.style.display = 'none';
       render();
     });
 
@@ -59,7 +97,17 @@
       lista.innerHTML='';
       storage.get('salas').forEach(s=>{
         const li = document.createElement('li');
-        li.innerHTML = `<div><strong>${s.nome}</strong> <div class="small">${s.tipo} - ${s.capacidade} lugares</div></div>
+        const recursos = [];
+        if(s.acessibilidade) recursos.push('♿ Acessível');
+        if(s.arcondicionado) recursos.push('❄️ Ar Cond.');
+        if(s.somDolby) recursos.push('🔊 Dolby Atmos');
+        const recursosText = recursos.length > 0 ? `<div class="small">${recursos.join(' • ')}</div>` : '';
+        
+        li.innerHTML = `<div>
+          <strong>${s.nome}</strong> 
+          <div class="small">${s.tipo} - ${s.capacidade} lugares</div>
+          ${recursosText}
+        </div>
         <div class="actions"><button data-id="${s.id}" class="del">Apagar</button></div>`;
         lista.appendChild(li);
       });
@@ -76,7 +124,10 @@
         id: uuid(),
         nome: $('#nomeSala').value,
         capacidade: parseInt($('#capacidade').value) || 0,
-        tipo: $('#tipoSala').value
+        tipo: $('#tipoSala').value,
+        acessibilidade: $('#acessibilidade').checked,
+        arcondicionado: $('#arcondicionado').checked,
+        somDolby: $('#somDolby').checked
       };
       const arr = storage.get('salas');
       arr.push(s);
@@ -95,28 +146,49 @@
     const selSala = $('#sessaoSala');
 
     function fillOptions(){
-      selFilme.innerHTML = '<option value="">-- selecione --</option>';
+      selFilme.innerHTML = '<option value="">-- Selecione um filme --</option>';
       storage.get('filmes').forEach(f=>{
         const o = document.createElement('option');
-        o.value = f.id; o.textContent = f.titulo;
+        o.value = f.id; 
+        o.textContent = `${f.titulo} (${f.duracao || '?'}min - ${f.classificacao || 'Livre'})`;
         selFilme.appendChild(o);
       });
-      selSala.innerHTML = '<option value="">-- selecione --</option>';
+      selSala.innerHTML = '<option value="">-- Selecione uma sala --</option>';
       storage.get('salas').forEach(s=>{
         const o = document.createElement('option');
-        o.value = s.id; o.textContent = s.nome + ' ('+s.tipo+')';
+        o.value = s.id; 
+        o.textContent = `${s.nome} (${s.tipo} - ${s.capacidade} lugares)`;
         selSala.appendChild(o);
       });
     }
 
     function render(){
       lista.innerHTML='';
-      storage.get('sessoes').forEach(sess=>{
+      const sessoes = storage.get('sessoes');
+      if(sessoes.length === 0) {
+        lista.innerHTML = '<li style="text-align:center;color:#999;padding:20px;">Nenhuma sessão cadastrada</li>';
+        return;
+      }
+      
+      sessoes.forEach(sess=>{
         const filme = storage.get('filmes').find(f=>f.id===sess.filmeId) || {titulo:'(filme removido)'};
-        const sala = storage.get('salas').find(s=>s.id===sess.salaId) || {nome:'(sala removida)'};
+        const sala = storage.get('salas').find(s=>s.id===sess.salaId) || {nome:'(sala removida)', tipo: '', capacidade: 0};
         const li = document.createElement('li');
-        li.innerHTML = `<div><strong>${filme.titulo}</strong><div class="small">${sala.nome} — ${new Date(sess.dataHora).toLocaleString()} — R$ ${Number(sess.preco).toFixed(2)}</div></div>
-          <div class="actions"><button data-id="${sess.id}" class="del">Apagar</button></div>`;
+        
+        const dataFormatada = new Date(sess.dataHora).toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        li.innerHTML = `<div>
+          <strong>${filme.titulo}</strong>
+          <div class="small">🏛️ ${sala.nome} (${sala.tipo}) • 🕒 ${dataFormatada}</div>
+          <div class="small">💰 R$ ${Number(sess.preco).toFixed(2)} • 🗣️ ${sess.idioma} • 📺 ${sess.formato}</div>
+        </div>
+        <div class="actions"><button data-id="${sess.id}" class="del">Apagar</button></div>`;
         lista.appendChild(li);
       });
       $$('.del', lista).forEach(b=>b.addEventListener('click', e=>{
@@ -128,13 +200,28 @@
 
     form.addEventListener('submit', e=>{
       e.preventDefault();
-      if(!$('#sessaoFilme').value || !$('#sessaoSala').value) return alert('Selecione filme e sala');
+      
+      // Validações
+      if(!$('#sessaoFilme').value) return alert('⚠️ Selecione um filme');
+      if(!$('#sessaoSala').value) return alert('⚠️ Selecione uma sala');
+      if(!$('#dataHora').value) return alert('⚠️ Informe a data e hora');
+      if(!$('#preco').value) return alert('⚠️ Informe o preço');
+      if(!$('#idioma').value) return alert('⚠️ Selecione o idioma');
+      if(!$('#formato').value) return alert('⚠️ Selecione o formato');
+      
+      // Verificar se a data não é no passado
+      const dataSession = new Date($('#dataHora').value);
+      const agora = new Date();
+      if(dataSession < agora) {
+        return alert('⚠️ A data da sessão não pode ser no passado');
+      }
+      
       const sess = {
         id: uuid(),
         filmeId: $('#sessaoFilme').value,
         salaId: $('#sessaoSala').value,
         dataHora: $('#dataHora').value,
-        preco: $('#preco').value,
+        preco: parseFloat($('#preco').value),
         idioma: $('#idioma').value,
         formato: $('#formato').value
       };
@@ -144,6 +231,7 @@
       form.reset();
       fillOptions();
       render();
+      alert('✅ Sessão criada com sucesso!');
     });
 
     fillOptions();
@@ -155,11 +243,20 @@
     const arr = storage.get('sessoes');
     ul.innerHTML='';
     arr.forEach(sess=>{
-      const filme = storage.get('filmes').find(f=>f.id===sess.filmeId) || {titulo:'(filme removido)'};
+      const filme = storage.get('filmes').find(f=>f.id===sess.filmeId) || {titulo:'(filme removido)', imagem: null};
       const sala = storage.get('salas').find(s=>s.id===sess.salaId) || {nome:'(sala removida)'};
       const li = document.createElement('li');
       const btn = `<button class="buy" data-id="${sess.id}">Comprar</button>`;
-      li.innerHTML = `<div><strong>${filme.titulo}</strong><div class="small">${sala.nome} — ${new Date(sess.dataHora).toLocaleString()} — R$ ${Number(sess.preco).toFixed(2)}</div></div><div>${btn}</div>`;
+      const imagemHtml = filme.imagem ? `<img src="${filme.imagem}" style="width:60px;height:90px;object-fit:cover;border-radius:4px;margin-right:12px;">` : '<div style="width:60px;height:90px;background:#f0f0f0;border-radius:4px;margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;">🎬</div>';
+      
+      li.innerHTML = `<div style="display:flex;align-items:center;">
+        ${imagemHtml}
+        <div>
+          <strong>${filme.titulo}</strong>
+          <div class="small">${sala.nome} — ${new Date(sess.dataHora).toLocaleString()} — R$ ${Number(sess.preco).toFixed(2)}</div>
+          ${sess.idioma ? `<div class="small">Idioma: ${sess.idioma} | Formato: ${sess.formato || 'Digital'}</div>` : ''}
+        </div>
+      </div><div>${btn}</div>`;
       ul.appendChild(li);
     });
     $$('.buy', ul).forEach(b=>b.addEventListener('click', e=>{
@@ -232,14 +329,36 @@
     render();
   }
 
+  function indexPage(){
+    // Atualiza estatísticas na página inicial
+    function updateStats(){
+      const filmes = storage.get('filmes').length;
+      const salas = storage.get('salas').length;
+      const sessoes = storage.get('sessoes').length;
+      const ingressos = storage.get('ingressos').length;
+
+      const totalFilmes = $('#total-filmes');
+      const totalSalas = $('#total-salas');
+      const totalSessoes = $('#total-sessoes');
+      const totalIngressos = $('#total-ingressos');
+
+      if(totalFilmes) totalFilmes.textContent = filmes;
+      if(totalSalas) totalSalas.textContent = salas;
+      if(totalSessoes) totalSessoes.textContent = sessoes;
+      if(totalIngressos) totalIngressos.textContent = ingressos;
+    }
+
+    updateStats();
+  }
+
   // router by body id
   document.addEventListener('DOMContentLoaded', ()=>{
     const id = document.body.id;
+    if(id==='page-index') indexPage();
     if(id==='page-filmes') filmesPage();
     if(id==='page-salas') salasPage();
     if(id==='page-sessoes') sessoesPage();
     if(id==='page-lista-sessoes') listaSessoesPage();
     if(id==='page-venda') vendaPage();
-    // index has no script
   });
 })();

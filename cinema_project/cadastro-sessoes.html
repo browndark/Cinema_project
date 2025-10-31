@@ -21,13 +21,47 @@
 
 <main>
   <form id="form-sessao" class="card">
-    <label>Filme<select id="sessaoFilme"></select></label>
-    <label>Sala<select id="sessaoSala"></select></label>
-    <label>Data e Hora<input type="datetime-local" id="dataHora" required></label>
-    <label>Preço<input type="number" id="preco" min="0" step="0.01" required></label>
-    <label>Idioma<select id="idioma"><option>Dublado</option><option>Legendado</option></select></label>
-    <label>Formato<select id="formato"><option>2D</option><option>3D</option></select></label>
-    <button type="submit">Salvar Sessão</button>
+    <h3> Nova Sessão</h3>
+    <div class="form-grid">
+      <label>Filme
+        <select id="sessaoFilme" required>
+          <option value="">-- Selecione um filme --</option>
+        </select>
+      </label>
+      <label>Sala
+        <select id="sessaoSala" required>
+          <option value="">-- Selecione uma sala --</option>
+        </select>
+      </label>
+    </div>
+    <div class="form-grid">
+      <label>Data e Hora
+        <input type="datetime-local" id="dataHora" required>
+      </label>
+      <label>Preço (R$)
+        <input type="number" id="preco" min="0" step="0.01" placeholder="Ex: 25.00" required>
+      </label>
+    </div>
+    <div class="form-grid">
+      <label>Idioma
+        <select id="idioma" required>
+          <option value="">-- Selecione --</option>
+          <option value="Dublado">🗣️ Dublado</option>
+          <option value="Legendado">📝 Legendado</option>
+          <option value="Original">🎭 Original</option>
+        </select>
+      </label>
+      <label>Formato
+        <select id="formato" required>
+          <option value="">-- Selecione --</option>
+          <option value="2D"> 2D</option>
+          <option value="3D"> 3D</option>
+          <option value="IMAX"> IMAX</option>
+          <option value="4DX"> 4DX</option>
+        </select>
+      </label>
+    </div>
+    <button type="submit"> Criar Sessão</button>
   </form>
 
   <section class="card">

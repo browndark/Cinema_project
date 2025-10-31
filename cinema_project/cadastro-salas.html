@@ -21,13 +21,38 @@
 
 <main>
   <form id="form-sala" class="card">
-    <label>Nome da Sala<input type="text" id="nomeSala" required></label>
-    <label>Capacidade<input type="number" id="capacidade" min="1" required></label>
-    <label>Tipo<select id="tipoSala">
-      <option>2D</option>
-      <option>3D</option>
-      <option>IMAX</option>
-    </select></label>
+    <h3> Nova Sala</h3>
+    <div class="form-grid">
+      <label>Nome da Sala
+        <input type="text" id="nomeSala" placeholder="Ex: Sala Premium 1" required>
+      </label>
+      <label>Capacidade
+        <input type="number" id="capacidade" min="1" max="500" placeholder="Ex: 120" required>
+      </label>
+    </div>
+    <label>Tipo de Sala
+      <select id="tipoSala" required>
+        <option value="">-- Selecione o tipo --</option>
+        <option value="2D"> 2D Tradicional</option>
+        <option value="3D"> 3D</option>
+        <option value="IMAX"> IMAX</option>
+        <option value="4DX">4DX</option>
+        <option value="VIP"> VIP</option>
+      </select>
+    </label>
+    <label>Recursos Especiais
+      <div class="checkbox-group">
+        <label class="checkbox-item">
+          <input type="checkbox" id="acessibilidade"> Acessibilidade
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="arcondicionado"> Ar Condicionado
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="somDolby"> Som Dolby Atmos
+        </label>
+      </div>
+    </label>
     <button type="submit">Salvar Sala</button>
   </form>
 
